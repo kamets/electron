@@ -429,4 +429,9 @@ import './contrib/editTelemetry/browser/editTelemetry.contribution.js';
 // Opener
 import './contrib/opener/browser/opener.contribution.js';
 
+
+// Custom Shell Modules
+import './contrib/financial/browser/financial.contribution.js';
+import './contrib/ai/browser/ai.contribution.js';
+
 //#endregion

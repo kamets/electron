@@ -1,0 +1,16 @@
+{
+	"extends": "../src/tsconfig.base.json",
+	"compilerOptions": {
+		"experimentalDecorators": true,
+		"baseUrl": ".",
+		"rootDirs": [
+			"..",
+			"../../src/vs",
+			".",
+			"../../src/vs/workbench"
+		]
+	},
+	"include": [
+		"modules/**/*.ts"
+	]
+}

@@ -9,6 +9,7 @@
 		"resolveJsonModule": true,
 		"isolatedModules": false,
 		"outDir": "../out/vs",
+		"skipLibCheck": true,
 		"types": [
 			"@webgpu/types",
 			"mocha",
