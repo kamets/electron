@@ -1,0 +1,19 @@
+Act as an expert Python developer. I need a script to archive text from a video file for a personal notes project.
+
+Task: Write a Python script using cv2 (OpenCV) and pytesseract to perform OCR on a video file named 'video.mp4'.
+
+Requirements:
+
+Setup: Import necessary libraries (cv2, pytesseract, difflib).
+
+Pre-processing: Create a function that takes a frame, converts it to grayscale, and applies Otsu's thresholding to make the text pop.
+
+Loop: Open the video using cv2.VideoCapture. Loop through the video, processing only every 30th frame to save time.
+
+OCR: Pass the pre-processed frame to pytesseract.image_to_string.
+
+Deduplication: Scrolling text repeats across frames. Use difflib.SequenceMatcher to check if the new line is similar to the previous line. If it is >80% similar, ignore it.
+
+Output: Append unique lines to a list and save them to 'output.txt' at the end.
+
+Constraint: Ensure the code is robust and handles the video.mp4 file not found error.

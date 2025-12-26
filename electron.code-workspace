@@ -1,0 +1,54 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../dspy"
+		},
+		{
+			"path": "../ForensicApp"
+		},
+		{
+			"path": "../matplotlib"
+		},
+		{
+			"path": "../supabase"
+		},
+		{
+			"path": "../LLM-Local-Agent/LLM-Local-Agent"
+		},
+		{
+			"path": "../AI-Insurance-Fraud-Detection"
+		},
+		{
+			"path": "../docling_docConvert"
+		}
+	],
+	"settings": {
+		"inlineChat.enableV2": true,
+		"chat.tools.terminal.autoApprove": {
+			"/^npm (test|lint|run compile)\\b/": true,
+			"/^npx tsc\\b.*--noEmit/": true,
+			"scripts/test.bat": true,
+			"scripts/test.sh": true,
+			"scripts/test-integration.bat": true,
+			"scripts/test-integration.sh": true
+		},
+		"files.associations": {
+			"cglicenses.json": "jsonc",
+			"*.tst": "typescript"
+		},
+		"typescript.tsdk": "node_modules/typescript/lib",
+		"typescript.tsc.autoDetect": "off",
+		"git.ignoreLimitWarning": true,
+		"git.mergeEditor": true,
+		"debug.javascript.terminalOptions": {
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js",
+				"${workspaceFolder}/build/**/*.js"
+			]
+		},
+		"emmet.excludeLanguages": []
+	}
+}

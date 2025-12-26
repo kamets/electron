@@ -1,0 +1,334 @@
+We need to create a Python script that:
+1. Uses OpenCV (cv2) and Tesseract OCR (pytesseract)
+2. Processes a video file 'video.mp4'
+3. Extracts text from frames, applying pre-processing
+4. Only processes every 30th frame
+5. Removes duplicate lines using difflib
+6. Outputs unique lines to 'output.txt'
+7. Handles file not found error
+
+Let me structure this professionally:
+
+```python
+import cv2
+import pytesseract
+from difflib import SequenceMatcher
+import os
+
+def preprocess_frame(frame):
+    """Convert frame to grayscale and apply Otsu's thresholding."""
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    _, thresh = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    return thresh
+
+def extract_text_from_video(video_path):
+    """Main function to extract text from video."""
+    # Check if file exists
+    if not os.path.exists(video_path):
+        print(f"Error: Video file '{video_path}' not found.")
+        return []
+    
+    # Initialize video capture
+    video_capture = cv2.VideoCapture(video_path)
+    
+    if not video_capture.isOpened():
+        print(f"Error: Could not open video file '{video_path}'.")
+        return []
+    
+    # Get frame width and height
+    frame_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # List to store all extracted text lines
+    all_text_lines = []
+    
+    print("Processing video... (every 30th frame only)")
+    
+    while True:
+        # Read frame
+        ret, frame = video_capture.read()
+        
+        if not ret:
+            break
+        
+        # Check if we should process this frame (every 30th frame)
+        # This tracks the first frame separately to avoid division by zero
+        frame_count = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT)) - 1 - video_capture.get(cv2.CAP_PROP_POS_FRAMES)
+        if frame_count % 30 != 0:
+            continue
+        
+        # Preprocess frame for OCR
+        processed_frame = preprocess_frame(frame)
+        
+        # Perform OCR
+        try:
+            text = pytesseract.image_to_string(processed_frame, lang="eng")
+        except Exception as e:
+            print(f"Warning: OCR processing failed for this frame: {e}")
+            continue
+        
+        # Split text into lines
+        lines = text.split('\n')
+        
+        # Remove empty lines and check for duplicates
+        processed_lines = []
+        for line in lines:
+            line = line.strip()
+            if line and len(line) > 3:  # Filter short lines
+                # Check for similarity with previous lines
+                similar = False
+                for i, prev_line in enumerate(processed_lines):
+                    if SequenceMatcher(None, line, prev_line).ratio() > 0.8:
+                        similar = True
+                        break
+                
+                if not similar:
+                    processed_lines.append(line)
+        
+        all_text_lines.extend(processed_lines)
+    
+    # Remove duplicates using difflib
+    if all_text_lines:
+        unique_text = []
+        for line in all_text_lines:
+            if not unique_text or SequenceMatcher(None, line, unique_text[-1]).ratio() <= 0.8:
+                unique_text.append(line)
+        
+        # Sort alphabetically for better organization
+        unique_text.sort()
+    
+    print(f"Extracted {len(unique_text)} unique lines of text.")
+    
+    # Save to output file
+    output_path = 'output.txt'
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(unique_text))
+    
+    print(f"\nText saved to '{output_path}'")
+    
+    # Clean up
+    video_capture.release()
+    cv2.destroyAllWindows()
+    
+    return unique_text
+
+if __name__ == "__main__":
+    # Specify the video file path (can be changed)
+    video_path = "video.mp4"
+    
+    # Ensure Tesseract is installed and accessible
+    # On Windows, you might need to specify the path to tesseract.exe
+    # Example: pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    
+    try:
+        extract_text_from_video(video_path)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
+
+Here's a robust Python script that implements all the requirements for extracting text from videos using OpenCV and Tesseract OCR:
+
+```python
+import cv2
+import pytesseract
+from difflib import SequenceMatcher
+import os
+import sys
+
+def preprocess_frame(frame):
+    """
+    Pre-processes a frame for OCR by converting to grayscale and applying Otsu's thresholding.
+    
+    Args:
+        frame: OpenCV frame image
+        
+    Returns:
+        Thresholded frame suitable for OCR
+    """
+    # Convert to grayscale
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    
+    # Apply Otsu's thresholding to binarize the image
+    _, thresh = cv2.threshold(gray, 0, 255, 
+                              cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    
+    return thresh
+
+def extract_text_from_video(video_path):
+    """
+    Main function to extract text from video using OCR and deduplication.
+    
+    Args:
+        video_path: Path to the video file
+        
+    Returns:
+        List of unique text lines extracted from the video
+    """
+    # Check if video file exists
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"Video file not found: {video_path}")
+    
+    # Initialize video capture
+    video_capture = cv2.VideoCapture(video_path)
+    
+    if not video_capture.isOpened():
+        raise ValueError(f"Could not open video file: {video_path}")
+    
+    # Get video properties
+    frame_count = int(video_capture.get(cv2.CAP_PROP_FRAME_COUNT))
+    fps = int(video_capture.get(cv2.CAP_PROP_FPS))
+    frame_width = int(video_capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+    frame_height = int(video_capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # Configure logging for Tesseract
+    # Uncomment and specify path if running on Windows (or other non-Linux systems)
+    # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+    
+    print(f"Processing video: {video_path}")
+    print(f"Frame count: {frame_count}, FPS: {fps}")
+    print("Extracting text from every 30th frame...")
+
+    # List to store all extracted text lines
+    all_text_lines = []
+    
+    while True:
+        # Read frame
+        ret, frame = video_capture.read()
+        
+        if not ret:
+            break
+        
+        # Calculate frame index to determine processing interval
+        frame_index = int(video_capture.get(cv2.CAP_PROP_POS_FRAMES))
+        # Skip frames that aren't in the 30th position interval
+        if frame_index % 30 != 0:
+            continue
+        
+        try:
+            # Pre-process frame for better text detection
+            processed_frame = preprocess_frame(frame)
+            
+            # Perform OCR on the pre-processed frame
+            text = pytesseract.image_to_string(
+                processed_frame, 
+                lang="eng",
+                config='-il2'  # Ignore less important pixels
+            )
+            
+            # Split text into potential lines (adjust based on your needs)
+            lines = text.split('\n')
+            
+            # Process each line
+            for line in lines:
+                line_strip = line.strip()
+                
+                if not line_strip or len(line_strip) < 5:
+                    continue  # Skip empty or too-short lines
+                
+                # Check for duplication with previously processed lines
+                is_duplicate = False
+                for i, prev_line in enumerate(all_text_lines):
+                    similarity = SequenceMatcher(None, line_strip, prev_line).ratio()
+                    
+                    if similarity > 0.8:
+                        is_duplicate = True
+                        break
+                
+                if not is_duplicate:
+                    all_text_lines.append(line_strip)
+            
+        except Exception as e:
+            # Log errors without stopping processing
+            print(f"Warning: OCR processing failed for current frame: {e}")
+    
+    # Perform final deduplication pass (sorted order helps with duplicates)
+    if all_text_lines:
+        unique_text = []
+        for line in all_text_lines:
+            if not unique_text or \
+               SequenceMatcher(None, line, unique_text[-1]).ratio() <= 0.8:
+                unique_text.append(line)
+        
+        # Sort the final text for better organization
+        unique_text.sort()
+    
+    print(f"\nSuccessfully extracted {len(unique_text)} unique text lines.")
+    
+    # Save results to file
+    output_path = 'output.txt'
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write('\n'.join(unique_text))
+        
+        print(f"\nText saved successfully to: {output_path}")
+        return unique_text
+        
+    except Exception as e:
+        raise ValueError(f"Failed to save output file: {e}")
+
+
+if __name__ == "__main__":
+    # Default video filename
+    default_video = "video.mp4"
+    
+    # Check if command line argument was provided
+    if len(sys.argv) > 1:
+        video_path = sys.argv[1]
+    else:
+        video_path = os.path.join(os.getcwd(), default_video)
+    
+    # Ensure the file exists before running
+    if not os.path.exists(video_path):
+        print(f"Error: File {video_path} not found in current directory.")
+        sys.exit(1)
+    
+    try:
+        # Add a sample header to output for better usability
+        header = """# Extracted Text from Video
+# Generated by video_ocr_extractor.py
+# Date: {date}
+""".format(date=__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        
+        if os.path.isfile(output_path):
+            # Append to existing file
+            with open(output_path, 'a', encoding='utf-8') as f:
+                f.write('\n\n' + header)
+        else:
+            # Create new file with header
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(header + '\n'.join(unique_text))
+        
+    except ValueError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+```
+
+### Key Features:
+
+1. **Robust Error Handling**: Properly handles `FileNotFoundError`, `ValueError`, and OCR processing exceptions
+2. **Selective Frame Processing**: Only processes every 30th frame to reduce computation time
+3. **Smart Deduplication**: Uses `difflib.SequenceMatcher` with a threshold of 0.8 to remove similar lines
+4. **Efficient Preprocessing**: Converts frames to grayscale and applies Otsu's thresholding for better text contrast
+5. **User-Friendly Design**:
+   - Clear progress indicators
+   - Automatic sorting of unique lines
+   - Optional command-line argument support
+   - Formatted output file with header
+6. **Tesseract Configuration**: Includes comments for Windows users to configure path to Tesseract executable
+
+### Installation & Usage:
+
+**Prerequisites**:
+- Install OpenCV: `pip install opencv-python`
+- Install Tesseract OCR: https://github.com/UB-Mannheim/tesseract/wiki
+- Install pytesseract: `pip install PyTesseract`
+
+**Basic Usage**:
+```bash
+python video_ocr_extractor.py
+# or with custom video path
+python video_ocr_extractor.py my_video.mp4
+```
+
+**Output Example**:
+The script will create `output.txt` containing sorted, deduplicated text extracted from every 30th frame of the video.
