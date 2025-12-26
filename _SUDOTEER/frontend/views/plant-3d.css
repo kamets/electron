@@ -1,0 +1,100 @@
+/* Lightweight 3D Plant Sphere - Pure CSS */
+/* Subtle rotating effect, minimal CPU usage */
+
+.architect-aura {
+	/* Add 3D context */
+	transform-style: preserve-3d;
+	perspective: 1000px;
+	position: relative;
+}
+
+/* 3D rotating plant sphere layers */
+.plant-sphere-layer {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 50%;
+	border: 2px solid rgba(52, 199, 89, 0.3);
+	animation: rotate3D 20s linear infinite;
+	transform-style: preserve-3d;
+}
+
+/* Different rotation axes for depth */
+@keyframes rotate3D {
+	0% {
+		transform: translate(-50%, -50%) rotateY(0deg) rotateX(0deg);
+	}
+	100% {
+		transform: translate(-50%, -50%) rotateY(360deg) rotateX(360deg);
+	}
+}
+
+/* Layer 1 - Largest circle */
+.plant-sphere-layer:nth-child(1) {
+	width: 200px;
+	height: 200px;
+	animation-duration: 25s;
+	border-color: rgba(52, 199, 89, 0.4);
+}
+
+/* Layer 2 - Medium circle, different axis */
+.plant-sphere-layer:nth-child(2) {
+	width: 150px;
+	height: 150px;
+	animation-duration: 30s;
+	animation-direction: reverse;
+	border-color: rgba(102, 212, 130, 0.3);
+}
+
+/* Layer 3 - Small inner circle */
+.plant-sphere-layer:nth-child(3) {
+	width: 100px;
+	height: 100px;
+	animation-duration: 20s;
+	border-color: rgba(48, 209, 88, 0.5);
+}
+
+/* Add subtle glow that follows rotation */
+.plant-sphere-layer::before {
+	content: '';
+	position: absolute;
+	top: -5px;
+	left: 50%;
+	width: 10px;
+	height: 10px;
+	background: radial-gradient(circle, rgba(52, 199, 89, 0.8), transparent);
+	border-radius: 50%;
+	transform: translateX(-50%);
+	filter: blur(3px);
+}
+
+/* Enhanced center orb with 3D depth */
+.architect-aura .inner-circle {
+	box-shadow:
+		0 0 40px rgba(52, 199, 89, 0.6),
+		inset 0 -20px 40px rgba(0, 0, 0, 0.3),
+		inset 0 20px 40px rgba(255, 255, 255, 0.1);
+	animation: breathe3D 4s ease-in-out infinite;
+}
+
+@keyframes breathe3D {
+	0%, 100% {
+		transform: scale(1) translateZ(0px);
+		box-shadow:
+			0 0 40px rgba(52, 199, 89, 0.6),
+			inset 0 -20px 40px rgba(0, 0, 0, 0.3);
+	}
+	50% {
+		transform: scale(1.05) translateZ(10px);
+		box-shadow:
+			0 0 60px rgba(52, 199, 89, 0.8),
+			inset 0 -25px 50px rgba(0, 0, 0, 0.4);
+	}
+}
+
+/* Performance optimization */
+.plant-sphere-layer {
+	will-change: transform;
+	backface-visibility: hidden;
+}

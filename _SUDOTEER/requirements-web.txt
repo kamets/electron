@@ -1,0 +1,12 @@
+# _SUDOTEER Web Server Dependencies
+# Install with: uv pip install -r requirements-web.txt
+# Or: pip install -r requirements-web.txt
+
+# Web Server (replaces Electron)
+fastapi==0.109.0       # Modern async web framework
+uvicorn[standard]==0.27.0  # ASGI server with WebSocket support
+websockets==12.0       # WebSocket protocol
+
+# Existing dependencies (already in your main requirements.txt)
+# Just adding these for standalone web server
+python-multipart==0.0.6  # Form data parsing (for file uploads)

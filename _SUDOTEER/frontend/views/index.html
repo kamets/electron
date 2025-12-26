@@ -1,0 +1,117 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>_SUDOTEER | Industrial Agency</title>
+		<link rel="stylesheet" href="style.css" />
+		<link rel="stylesheet" href="workflow.css" />
+		<link rel="stylesheet" href="greenhouse.css" />
+		<link rel="stylesheet" href="animations.css" />
+		<link rel="stylesheet" href="bio-background.css" />
+		<link rel="stylesheet" href="morning-dashboard.css" />
+		<link rel="stylesheet" href="plant-3d.css" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=JetBrains+Mono:wght@300;500&display=swap"
+			rel="stylesheet"
+		/>
+	</head>
+	<body class="ios-theme">
+		<!-- Microscopic cell background -->
+		<div class="cell-particle"></div>
+		<div class="cell-particle"></div>
+		<div class="cell-particle"></div>
+		<div class="cell-particle"></div>
+		<div class="cell-particle"></div>
+		<div class="tubule-flow"></div>
+		<div class="tubule-flow"></div>
+		<div class="tubule-flow"></div>
+		<div class="tubule-flow"></div>
+		<div class="tubule-flow"></div>
+		<div class="chlorophyll-glow"></div>
+		<div class="chlorophyll-glow"></div>
+		<div class="chlorophyll-glow"></div>
+
+		<div class="glass-container">
+			<!-- Header / Traffic Lights -->
+			<!-- Header / Traffic Lights -->
+			<header class="app-header">
+				<div class="traffic-lights">
+					<span class="light close"></span>
+					<span class="light minimize"></span>
+					<span class="light maximize"></span>
+				</div>
+				<div class="app-title">_SUDOTEER <span class="badge">CORE</span></div>
+			</header>
+
+			<main class="dashboard gpu-accelerated">
+				<!-- Left Status Panel: Greenhouse Digital Twin -->
+				<aside class="telemetry-panel left-panel animate-slide-up stagger-1">
+					<div id="greenhouse-panel"></div>
+				</aside>
+
+				<!-- Center: Architect Hub -->
+				<section class="architect-hub animate-fade-in stagger-2">
+					<div class="architect-aura">
+						<div class="pulse-wave"></div>
+						<div class="inner-circle"></div>
+					</div>
+					<h1 class="architect-status">Master Grower - Active</h1>
+					<p class="architect-subtitle">
+						Continuous monitoring: <span id="uptime">0h 00m</span> | Current cycle: <span id="cycle-day">Day 1</span>.
+					</p>
+				</section>
+
+				<!-- Right Status Panel -->
+				<aside class="telemetry-panel right-panel animate-slide-up stagger-3">
+					<div class="stat-card">
+						<label>HUMIDITY</label>
+						<div class="value">62%</div>
+					</div>
+					<div class="stat-card">
+						<label>PLANT HEALTH</label>
+						<div class="value secure">95%</div>
+					</div>
+				</aside>
+			</main>
+
+			<!-- Bottom Command Bar -->
+			<footer class="command-bar">
+				<div class="input-glass">
+					<input
+						type="text"
+						placeholder="Speak or type a command..."
+						id="user-input"
+					/>
+					<button class="voice-btn">
+						<svg
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+						>
+							<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+							<path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+							<line x1="12" y1="19" x2="12" y2="23" />
+							<line x1="8" y1="23" x2="16" y2="23" />
+						</svg>
+					</button>
+				</div>
+			</footer>
+		</div>
+
+
+
+		<!-- System Stress HUD Overlay (Therapeutic) -->
+		<div class="stress-overlay" id="global-stress"></div>
+
+		<script src="health-monitor.js"></script>
+		<script src="workflow.js"></script>
+		<script src="greenhouse-monitor.js"></script>
+		<script src="uptime.js"></script>
+		<script src="ui.js"></script>
+		<script src="morning-dashboard.js"></script>
+	</body>
+</html>

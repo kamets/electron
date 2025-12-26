@@ -23,3 +23,20 @@ product.overrides.json
 *.tsbuildinfo
 .vscode-test
 vscode-telemetry-docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+.env
+
+# SUDOTEER Data
+_SUDOTEER/data/
+_SUDOTEER/sandbox/monologues/*.json
+_SUDOTEER/sandbox/workstations/*/working_memory.json
+*.sqlite3
+
+# Binaries
+*.vsix

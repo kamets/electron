@@ -1,0 +1,109 @@
+/* Morning Dashboard - First Thing Foreman Sees */
+/* Simple, clear, actionable - NO CONFUSION */
+
+.morning-summary {
+	position: relative;
+	width: 100%;
+	padding: 20px;
+	background: rgba(255, 255, 255, 0.03);
+	backdrop-filter: blur(15px);
+	border: 1px solid var(--glass-border);
+	border-radius: 12px;
+	color: white;
+	font-family: 'Outfit', sans-serif;
+	margin-bottom: 20px;
+}
+
+.morning-summary h2 {
+	margin: 0 0 15px 0;
+	font-size: 18px;
+	font-weight: 600;
+	color: #34c759;
+}
+
+/* Overall status - BIG and CLEAR */
+.status-banner {
+	padding: 15px;
+	border-radius: 8px;
+	text-align: center;
+	font-size: 20px;
+	font-weight: 600;
+	margin-bottom: 15px;
+}
+
+.status-banner.all-good {
+	background: #34c759;
+	color: white;
+}
+
+.status-banner.needs-attention {
+	background: #ffbd2e;
+	color: black;
+}
+
+.status-banner.critical {
+	background: #ff3b30;
+	color: white;
+}
+
+/* Today's tasks */
+.task-list {
+	list-style: none;
+	padding: 0;
+	margin: 0 0 15px 0;
+}
+
+.task-item {
+	padding: 10px;
+	background: rgba(255, 255, 255, 0.05);
+	border-left: 3px solid #34c759;
+	margin-bottom: 8px;
+	border-radius: 4px;
+	font-size: 14px;
+}
+
+.task-item.urgent {
+	border-left-color: #ff3b30;
+	background: rgba(255, 59, 48, 0.1);
+}
+
+.task-item.warning {
+	border-left-color: #ffbd2e;
+	background: rgba(255, 189, 46, 0.1);
+}
+
+/* Quick stats - SIMPLE numbers */
+.quick-stats {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	margin-top: 15px;
+}
+
+.quick-stat {
+	background: rgba(255, 255, 255, 0.05);
+	padding: 10px;
+	border-radius: 6px;
+	text-align: center;
+}
+
+.quick-stat-label {
+	font-size: 11px;
+	color: rgba(255, 255, 255, 0.6);
+	text-transform: uppercase;
+	margin-bottom: 5px;
+}
+
+.quick-stat-value {
+	font-size: 24px;
+	font-weight: 600;
+	color: #34c759;
+}
+
+.quick-stat-value.warning {
+	color: #ffbd2e;
+}
+
+.quick-stat-value.critical {
+	color: #ff3b30;
+}
