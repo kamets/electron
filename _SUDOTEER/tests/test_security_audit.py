@@ -48,13 +48,14 @@ def test_injection_attempt_null_bytes(cmd_server):
 	assert cmd_server.command_count == 1
 
 def test_greenhouse_command_safety(cmd_server):
-	"""Integrity: Ensure greenhouse commands route to simulation."""
+	"""Integrity: Ensure greenhouse commands route to simulation with user source."""
 	with patch('backend.sandbox.simulations.greenhouse.greenhouse_sim.set_actuator') as mock_set:
 		cmd_server._process_command(json.dumps({
 			"command": "AGENT_MSG",
 			"payload": {"target": "greenhouse_sim", "action": "START_PUMP"}
 		}))
-		mock_set.assert_called_once_with("pump_active", True)
+		# UI commands should use source="user" to trigger manual override
+		mock_set.assert_called_once_with("pump_active", True, source="user")
 
 def test_shutdown_state_transition(cmd_server):
 	"""Safety: Ensure SYSTEM_SHUTDOWN transitions state correctly."""

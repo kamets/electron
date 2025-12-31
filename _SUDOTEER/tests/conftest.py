@@ -1,11 +1,15 @@
 import sys
 import os
 import pytest
+import pytest_asyncio
 from pathlib import Path
 
 # Add project root to sys.path
 root_path = Path(__file__).parent.parent
 sys.path.insert(0, str(root_path))
+
+# Configure pytest-asyncio to run all async tests
+pytest_plugins = ['pytest_asyncio']
 
 @pytest.fixture(autouse=True)
 def setup_logging():

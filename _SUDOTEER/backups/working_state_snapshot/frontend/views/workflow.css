@@ -1,0 +1,196 @@
+/* Workflow Visualization Styles */
+
+.workflow-chain {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+	padding: 30px;
+	margin: 20px 0;
+}
+
+.workflow-node {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 12px;
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.node-icon {
+	position: relative;
+	width: 60px;
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.node-core {
+	width: 40px;
+	height: 40px;
+	background: rgba(255, 255, 255, 0.08);
+	border: 2px solid var(--agent-color);
+	border-radius: 50%;
+	transition: all 0.4s ease;
+	position: relative;
+	z-index: 2;
+}
+
+.node-pulse {
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	border: 2px solid var(--agent-color);
+	border-radius: 50%;
+	opacity: 0;
+	transition: all 0.4s ease;
+}
+
+/* Node States */
+.workflow-node.idle .node-core {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(255, 255, 255, 0.2);
+}
+
+.workflow-node.active .node-core {
+	background: var(--agent-color);
+	box-shadow: 0 0 30px var(--agent-color), 0 0 60px rgba(var(--agent-color), 0.3);
+	animation: node-breathe 1.5s ease-in-out infinite;
+}
+
+.workflow-node.active .node-pulse {
+	opacity: 0.5;
+	animation: pulse-expand 2s ease-out infinite;
+}
+
+.workflow-node.success .node-core {
+	background: linear-gradient(135deg, var(--agent-color), rgba(var(--agent-color), 0.6));
+	border-color: var(--agent-color);
+	box-shadow: 0 0 20px var(--agent-color);
+}
+
+.workflow-node.success .node-label {
+	color: var(--agent-color);
+	font-weight: 600;
+}
+
+.workflow-node.error .node-core {
+	background: #ff3b30;
+	border-color: #ff3b30;
+	box-shadow: 0 0 20px #ff3b30;
+	animation: shake 0.5s ease-in-out;
+}
+
+/* Animations */
+@keyframes node-breathe {
+	0%, 100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.1);
+	}
+}
+
+@keyframes pulse-expand {
+	0% {
+		width: 40px;
+		height: 40px;
+		opacity: 0.8;
+	}
+	100% {
+		width: 80px;
+		height: 80px;
+		opacity: 0;
+	}
+}
+
+@keyframes shake {
+	0%, 100% { transform: translateX(0); }
+	25% { transform: translateX(-5px); }
+	75% { transform: translateX(5px); }
+}
+
+/* Labels */
+.node-label {
+	font-size: 0.85rem;
+	font-weight: 500;
+	letter-spacing: 0.5px;
+	color: rgba(255, 255, 255, 0.7);
+	transition: all 0.3s ease;
+}
+
+.node-status {
+	font-size: 0.7rem;
+	font-family: 'JetBrains Mono', monospace;
+	color: rgba(255, 255, 255, 0.4);
+	transition: all 0.3s ease;
+}
+
+.workflow-node.active .node-status {
+	color: var(--agent-color);
+	animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.4; }
+}
+
+/* Connector Lines */
+.connector {
+	position: absolute;
+	left: calc(100% + 10px);
+	top: 30px;
+	width: 20px;
+	height: 2px;
+	background: rgba(255, 255, 255, 0.1);
+	transition: all 0.4s ease;
+}
+
+.workflow-node.success ~ .workflow-node.active .connector,
+.workflow-node.success .connector {
+	background: linear-gradient(90deg, var(--agent-color), rgba(255, 255, 255, 0.1));
+	box-shadow: 0 0 8px var(--agent-color);
+	animation: flow 1s ease-in-out infinite;
+}
+
+@keyframes flow {
+	0% {
+		background-position: 0% 50%;
+	}
+	100% {
+		background-position: 100% 50%;
+	}
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+	.workflow-chain {
+		flex-wrap: wrap;
+		gap: 30px 15px;
+	}
+
+	.connector {
+		display: none;
+	}
+}
+
+/* Progress Bar (Optional) */
+.workflow-progress {
+	width: 100%;
+	height: 4px;
+	background: rgba(255, 255, 255, 0.05);
+	border-radius: 2px;
+	overflow: hidden;
+	margin-top: 20px;
+}
+
+.workflow-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #007aff, #34c759, #ff9500, #af52de, #ff3b30);
+	width: 0%;
+	transition: width 0.5s ease;
+	box-shadow: 0 0 10px rgba(0, 122, 255, 0.5);
+}

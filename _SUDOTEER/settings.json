@@ -1,0 +1,18 @@
+{
+    "ph-settings": {},
+    "nutrient-settings": {
+        "PUMP A Configuration": {
+            "PLC Control ID": "PLC_PUMP_1",
+            "Interval": "AT EVERY WATERING",
+            "Dose Amount": "10",
+            "Max Daily Dose": "100"
+        },
+        "PUMP B Configuration": {
+            "PLC Control ID": "PLC_PUMP_2",
+            "Interval": "AT EVERY WATERING",
+            "Dose Amount": "10",
+            "Max Daily Dose": "100"
+        },
+        "Combined Nutrient Delivery History": {}
+    }
+}

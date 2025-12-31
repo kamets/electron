@@ -1,0 +1,25 @@
+{
+  "status": "active",
+  "features": [
+    {
+      "name": "test_vector_db",
+      "status": "in_progress"
+    },
+    {
+      "name": "test_factory",
+      "status": "pending"
+    },
+    {
+      "name": "test_bus",
+      "status": "pending"
+    },
+    {
+      "name": "test_workflow",
+      "status": "pending"
+    },
+    {
+      "name": "test_boot",
+      "status": "pending"
+    }
+  ]
+}

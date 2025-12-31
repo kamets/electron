@@ -1,0 +1,11 @@
+{
+    "global_level": 1,
+    "agent_stats": {
+        "coder_quick": {
+            "xp": 5,
+            "level": 1,
+            "mastery": {}
+        }
+    },
+    "agent_levels": {}
+}

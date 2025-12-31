@@ -4,11 +4,13 @@ Handles system initialization, agent registration, and environment setup.
 """
 
 import logging
+import asyncio
 from backend.core.factory import agent_factory
 from backend.core.dspy_config import initialize_dspy
 from backend.core.memory.vector_db import initialize_vector_db
 from backend.core.industrial_bridge import industrial_bridge
 from backend.core.ui_bridge import ui_bridge
+from backend.core.sudoteer_engine import sudoteer_engine
 
 # Agent Imports
 from backend.agents.supervisor import SupervisorAgent
@@ -18,6 +20,11 @@ from backend.agents.tester import TesterAgent
 from backend.agents.documenter import DocumenterAgent
 from backend.agents.validator import ValidatorAgent
 from backend.agents.seeker import SeekerAgent
+from backend.agents.climate import ClimateAgent
+from backend.agents.nutrient import NutrientAgent
+from backend.agents.crop import CropAgent
+from backend.agents.financial.agent import FinancialAgent
+from backend.agents.forensic.agent import ForensicAgent
 
 logger = logging.getLogger("_SUDOTEER")
 
@@ -25,7 +32,7 @@ class SudoBootstrapper:
 	"""Encapsulates all logic required to start the _SUDOTEER engine."""
 
 	@staticmethod
-	def initialize_subsystems():
+	async def initialize_subsystems():
 		"""Initialize all core backend subsystems."""
 		logger.info("Initializing _SUDOTEER Subsystems...")
 
@@ -40,21 +47,32 @@ class SudoBootstrapper:
 		# 3. UI Bridge
 		ui_bridge.start_heartbeat(interval_seconds=2.0)
 
-		# 4. Constitution (Neo4j)
+		# 4. Sudoteer Engine (The Heart)
+		await sudoteer_engine.initialize()
+
+		# 5. Industrial I/O (The Nervous System)
+		await industrial_bridge.connect()
+
+		# 5.1 MCP (Universal Tool Connectivity)
+		try:
+			from backend.core.mcp_manager import mcp_manager
+			await mcp_manager.start_internal_server()
+		except Exception as e:
+			logger.warning(f"MCP Server failed to start: {e}")
+
+		# 6. Constitution (Neo4j)
 		try:
 			from backend.core.memory.manager import memory_manager
-			import asyncio
 			asyncio.create_task(SudoBootstrapper.setup_constitution(memory_manager))
 		except Exception as e:
 			logger.warning(f"Constitution setup deferred: {e}")
 
-		logger.info("Subsystems online.")
+		logger.info("✓ All Subsystems online.")
 
 	@staticmethod
 	async def setup_constitution(manager):
 		"""
 		Initialize the Prime Directive, Persona, and Tool Breadcrumbs in Neo4j.
-		HANDBOOK: Phase 1 - Foundation.
 		"""
 		# 1. Core Tenets
 		tenets = [
@@ -72,33 +90,27 @@ class SudoBootstrapper:
 
 		try:
 			# Link Constitution to Agency
-			await manager.graph_store.create_relationship(
-				"Constitution", "Agency", "GOVERNS",
-				{"id": "core_values", "tenets": tenets}
-			)
-
-			# Link Persona to Agency
-			await manager.graph_store.create_relationship(
-				"Persona", "Agency", "ADOPTS",
-				persona
-			)
-
-			# 3. Tool Breadcrumbs (Fog of War Foundation)
-			# Tiered DocChunks: Breadcrumb -> Basic -> Advanced
-			tools = ["FileWrite", "TerminalExec", "GitCommit"]
-			for tool in tools:
-				# Breadcrumb node (Level 1)
+			if manager.graph_store:
 				await manager.graph_store.create_relationship(
-					f"Breadcrumb_{tool}", tool, "DESCRIBES",
-					{"level": 1, "brief": f"Basic existence of {tool}. Access /docs/{tool}.md to unlock."}
-				)
-				# Basic node (Level 3)
-				await manager.graph_store.create_relationship(
-					f"Basic_{tool}", f"Breadcrumb_{tool}", "EXTENDS",
-					{"level": 3, "brief": f"Standard usage patterns for {tool}."}
+					"Constitution", "Agency", "GOVERNS",
+					{"id": "core_values", "tenets": tenets}
 				)
 
-			logger.info("✓ Foundation (Tenets, Jaxon, Breadcrumbs) established in Graph.")
+				# Link Persona to Agency
+				await manager.graph_store.create_relationship(
+					"Persona", "Agency", "ADOPTS",
+					persona
+				)
+
+				# 3. Tool Breadcrumbs (Fog of War Foundation)
+				tools = ["FileWrite", "TerminalExec", "GitCommit"]
+				for tool in tools:
+					await manager.graph_store.create_relationship(
+						f"Breadcrumb_{tool}", tool, "DESCRIBES",
+						{"level": 1, "brief": f"Basic existence of {tool}."}
+					)
+
+				logger.info("✓ Foundation (Tenets, Jaxon, Breadcrumbs) established in Graph.")
 		except Exception as e:
 			logger.error(f"Failed to setup foundation in Graph: {e}")
 
@@ -112,7 +124,12 @@ class SudoBootstrapper:
 			"tester": TesterAgent,
 			"documenter": DocumenterAgent,
 			"validator": ValidatorAgent,
-			"seeker": SeekerAgent
+			"seeker": SeekerAgent,
+			"climate": ClimateAgent,
+			"nutrient": NutrientAgent,
+			"crop": CropAgent,
+			"financial": FinancialAgent,
+			"forensic": ForensicAgent
 		}
 		for role, agent_class in roles.items():
 			agent_factory.register_role(role, agent_class)
@@ -128,14 +145,16 @@ class SudoBootstrapper:
 			("tester", "tester_01"),
 			("documenter", "documenter_01"),
 			("validator", "validator_01"),
-			("seeker", "seeker_01")
+			("seeker", "seeker_01"),
+			("climate", "climate_01"),
+			("nutrient", "nutrient_01"),
+			("crop", "crop_01"),
+			("financial", "financial_01"),
+			("forensic", "forensic_01")
 		]
 		for role, agent_id in baseline_agents:
-			agent_factory.spawn_agent(role, agent_id)
-		logger.info("Baseline agency spawned.")
+			agent = agent_factory.spawn_agent(role, agent_id)
+			if hasattr(agent, "initialize"):
+				await agent.initialize()
 
-	@staticmethod
-	async def connect_industrial_io():
-		"""Establish connections to industrial hardware/bridges."""
-		await industrial_bridge.connect()
-		logger.info("Industrial bridge connected.")
+		logger.info("Baseline agency spawned and initialized.")

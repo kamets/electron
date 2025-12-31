@@ -4,9 +4,9 @@ _SUDOTEER is a premium desktop application for industrial-grade forensic analysi
 
 ## Architecture
 
-- **Tier 1 (Supervisor)**: Voiced Orchestrator (LiveKit).
-- **Tier 2 (Crew)**: Greenhouse/Operational Agents.
-- **Tier 3 (Engineers)**: Architect, Coder, Tester, Validator, Documenter.
+For detailed service relationships and layered design, see:
+- [Architecture Diagrams Documentation (v11.1.0+)](./docs/ARCHITECTURE_DIAGRAMS.md)
+
 
 ## Directory Structure
 

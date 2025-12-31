@@ -22,7 +22,7 @@ class HybridMemoryManager:
 	"""
 	def __init__(self):
 		self.vector_db = vector_db
-		self.graph_store = Neo4jGraphStore()
+		self.graph_store = None  # Neo4j disabled - ChromaDB only mode
 		self.splitter = memory_splitter
 
 	async def remember(self, agent_id: str, data: str, metadata: Optional[Dict[str, Any]] = None):
@@ -127,7 +127,7 @@ class HybridMemoryManager:
 
 		return context_results
 
-	async def get_context_sandwich(self, agent_id: str, query: str) -> str:
+	async def get_context_sandwich(self, agent_id: str, query: str, extra_context: Optional[str] = None) -> str:
 		"""
 		HANDBOOK: Sequence Diagram [2.2] - The Context Sandwich Assembly.
 		Order: 1. Persona, 2. Lessons (Enriched), 3. Guidelines, 4. Facts.
@@ -186,6 +186,7 @@ class HybridMemoryManager:
 
 **Part 4: Facts (Semantic)**
 {facts_str if facts_str else "No specific grounding facts found."}
+{f"**Extra System Context:**\n{extra_context}" if extra_context else ""}
 
 **Part 5: Cognitive State (Fog of War)**
 {mastery_note}

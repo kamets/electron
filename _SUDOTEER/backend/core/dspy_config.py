@@ -1,4 +1,10 @@
 import os
+
+# CRITICAL: Disable DSPy's structured outputs BEFORE importing dspy
+# This prevents the 'response_format.type' error with LM Studio
+os.environ["DSPy_DISABLE_STRUCTURED_OUTPUTS"] = "true"
+os.environ["LITELLM_DROP_PARAMS"] = "true"
+
 import dspy
 import logging
 from pathlib import Path
@@ -24,11 +30,23 @@ class DSPyConfig:
 
 	def _local(self):
 		try:
-			self.lm = dspy.LM(model="openai/local-model", api_base="http://localhost:1234/v1", api_key="lm-studio")
-			self.provider = "LM Studio (Local)"
-			dspy.configure(lm=self.lm)
+			lm_url = os.getenv("LM_STUDIO_URL", "http://localhost:1234/v1")
+			lm_model = os.getenv("LM_STUDIO_MODEL", "qwen/qwen3-4b-thinking-2507")  # 4B thinking model with tool use
+			# Disable JSON mode and caching - not supported by LM Studio
+			self.lm = dspy.LM(
+				model=lm_model,
+				api_base=lm_url,
+				api_key="lm-studio",
+				cache=False
+			)
+			self.provider = f"LM Studio ({lm_model})"
+			# Configure with experimental features off
+			dspy.configure(lm=self.lm, experimental=False)
+			logger.info(f"[DSPy] Connected to LM Studio: {lm_model} @ {lm_url}")
 			return True
-		except Exception: return False
+		except Exception as e:
+			logger.warning(f"[DSPy] LM Studio connection failed: {e}")
+			return False
 
 	def _gemini(self):
 		key = os.getenv("GEMINI_API_KEY")
@@ -40,11 +58,30 @@ class DSPyConfig:
 			return True
 		except Exception: return False
 
+	def _ollama(self):
+		"""Connect to local Ollama instance."""
+		try:
+			ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+			ollama_model = os.getenv("OLLAMA_MODEL", "qwen3:1.7b")  # 1.7B model loaded
+			self.lm = dspy.LM(
+				model=f"ollama_chat/{ollama_model}",
+				api_base=ollama_url,
+				cache=False
+			)
+			self.provider = f"Ollama ({ollama_model})"
+			dspy.configure(lm=self.lm, experimental=False)
+			logger.info(f"[DSPy] Connected to Ollama: {ollama_model} @ {ollama_url}")
+			return True
+		except Exception as e:
+			logger.warning(f"[DSPy] Ollama connection failed: {e}")
+			return False
+
 	def _auto(self):
 		logger.info("[DSPy] Auto-detecting LM...")
 		if self._local(): return True
+		if self._ollama(): return True
 		if self._gemini(): return True
-		logger.error("[DSPy] ❌ No LM backend found.")
+		logger.error("[DSPy] No LM backend found.")
 		return False
 
 dspy_config = DSPyConfig()

@@ -11,12 +11,14 @@ def mock_stores():
 		# Mock graph store instance
 		mock_graph = MagicMock()
 		mock_graph.create_relationship = AsyncMock()
-		mock_graph.find_subgraph = AsyncMock()
+		mock_graph.find_subgraph = AsyncMock(return_value={})
 		mock_graph_cls.return_value = mock_graph
 
-		# Mock vector db
+		# Mock vector db - use AsyncMock for all async methods
 		mock_vdb.store_memory = AsyncMock(return_value="mem_123")
 		mock_vdb.search_memories = AsyncMock(return_value=[{"content": "similar info"}])
+		mock_vdb.search_knowledge = AsyncMock(return_value=[{"content": "knowledge", "metadata": {}}])
+		mock_vdb.search_episodes = AsyncMock(return_value=[{"content": "episode", "metadata": {}}])
 
 		# Mock splitter
 		mock_splitter.split_storage = AsyncMock(return_value={
@@ -64,5 +66,5 @@ async def test_recall_automatic_mode(mock_stores):
 	assert results["mode"] == "hybrid"
 	assert len(results["semantic_context"]) > 0
 	mock_stores["splitter"].sift_query.assert_awaited_once_with(query)
-	mock_stores["vdb"].search_memories.assert_awaited_once()
+	mock_stores["vdb"].search_knowledge.assert_awaited_once()
 	mock_stores["graph"].find_subgraph.assert_awaited_once()

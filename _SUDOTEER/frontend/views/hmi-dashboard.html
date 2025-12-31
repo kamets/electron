@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>_SUDOTEER | Master Grower HMI</title>
+	<link rel="stylesheet" href="hmi-dashboard.css" />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+</head>
+<body>
+	<!-- Theme Day/Night Toggle (Sun & Moon) -->
+	<div class="theme-toggle-corner" id="theme-toggle">
+		<div class="theme-buttons">
+			<button class="theme-btn sun-btn" id="day-mode" title="Day Mode">
+				<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+					<circle cx="12" cy="12" r="5"/>
+					<path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+				</svg>
+			</button>
+			<button class="theme-btn moon-btn active" id="night-mode" title="Night Mode">
+				<svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+					<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+				</svg>
+			</button>
+		</div>
+	</div>
+
+	<!-- Main 3-Column Dashboard -->
+	<div class="dashboard">
+
+		<!-- LEFT COLUMN: Environment & History -->
+		<section class="column left-column">
+			<h2 class="column-title">ENVIRONMENT & HISTORY</h2>
+
+			<!-- Lux Level Card -->
+			<div class="card expandable-card settings-trigger" id="lux-card" data-setting="light-settings">
+				<div class="card-header">
+					<div class="metric-info">
+						<span class="metric-label">LUX LEVEL</span>
+						<span class="metric-value" id="lux-value">88%</span>
+						<span class="metric-sub">88°C LIGHTS</span>
+					</div>
+					<div class="light-toggle-group">
+						<label class="toggle-switch small">
+							<input type="checkbox" id="lights-toggle" checked>
+							<span class="toggle-slider"></span>
+						</label>
+						<button class="light-btn-corner" id="light-toggle" title="Toggle Grow Lights">
+							<svg viewBox="0 0 24 24" fill="currentColor" class="light-icon">
+								<circle cx="12" cy="12" r="5"/>
+								<path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3"/>
+							</svg>
+						</button>
+						<span class="light-status" id="light-status">OFF</span>
+					</div>
+				</div>
+				<div class="time-range-toggle" data-graph="lux">
+					<button class="range-btn active" data-range="24h">24H</button>
+					<button class="range-btn" data-range="daily">DAILY</button>
+					<button class="range-btn" data-range="weekly">WEEKLY</button>
+				</div>
+				<div class="graph-label">HOURLY</div>
+				<canvas id="lux-graph" class="graph-24h"></canvas>
+			</div>
+
+			<!-- Humidity Card -->
+			<div class="card">
+				<div class="card-header">
+					<span class="metric-label">HUMIDITY</span>
+					<span class="metric-value" id="humidity-value">63%</span>
+					<span class="temp-display">
+						<span id="temp-out">$27°C</span>
+						<span id="temp-in">$25°C</span>
+					</span>
+					<span class="greenhouse-badge">GREENHOUSE</span>
+				</div>
+				<div class="time-range-toggle" data-graph="humidity">
+					<button class="range-btn active" data-range="24h">24H</button>
+					<button class="range-btn" data-range="daily">DAILY</button>
+					<button class="range-btn" data-range="weekly">WEEKLY</button>
+				</div>
+				<div class="graph-label">HOURLY</div>
+				<canvas id="humidity-graph" class="graph-24h"></canvas>
+			</div>
+
+			<!-- Nutrition Schedule Card -->
+			<div class="card">
+				<div class="card-header">
+					<span class="metric-label">NUTRITION SCHEDULE</span>
+					<span class="metric-value" id="nutrition-pct">19%</span>
+					<span class="temp-display">
+						<span>19°C</span>
+						<span>$25°C</span>
+					</span>
+					<span class="greenhouse-badge">GREENHOUSE</span>
+				</div>
+				<div class="time-range-toggle" data-graph="nutrition">
+					<button class="range-btn active" data-range="24h">24H</button>
+					<button class="range-btn" data-range="daily">DAILY</button>
+					<button class="range-btn" data-range="weekly">WEEKLY</button>
+				</div>
+				<div class="graph-label">HOURLY</div>
+				<canvas id="nutrition-graph" class="graph-24h"></canvas>
+			</div>
+		</section>
+
+		<!-- CENTER COLUMN: Digital Twin & Controls -->
+		<section class="column center-column">
+
+			<!-- AGENT COMMAND CENTER (New Top Block) -->
+			<div class="card agent-card">
+				<div class="card-header-row">
+					<span class="card-title">AGENT INTERFACE</span>
+					<!-- Inline Voice Visualizer (Whitish-Blue, Still by default) -->
+					<div class="voice-visualizer-inline" id="agent-visualizer">
+						<div class="voice-orb"></div>
+						<div class="voice-orb"></div>
+						<div class="voice-orb"></div>
+						<div class="voice-orb"></div>
+						<div class="voice-orb"></div>
+					</div>
+				</div>
+
+				<!-- Chat Window (Expanded) -->
+				<div class="chat-interface">
+					<div class="chat-history" id="chat-history">
+						<div class="chat-msg system">Ready for voice command...</div>
+					</div>
+					<div class="chat-input-row">
+						<input type="text" class="chat-input" placeholder="Type command..." id="agent-input">
+						<button class="chat-send-btn"><i class="fas fa-arrow-right"></i></button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Digital Twin Visualization with Stats -->
+			<div class="card twin-card">
+				<div class="twin-row">
+					<div class="greenhouse-twin" id="greenhouse-3d">
+						<div class="wireframe-cube">
+							<!-- Grid removed as requested -->
+						</div>
+					</div>
+					<div class="twin-stats">
+						<div class="stat-row"><span class="stat-key">TEMP</span><span class="stat-val" id="twin-temp">22.5°C</span></div>
+						<div class="stat-row"><span class="stat-key">HUMID</span><span class="stat-val" id="twin-humid">63%</span></div>
+						<div class="stat-row"><span class="stat-key">pH</span><span class="stat-val" id="twin-ph">6.2</span></div>
+						<div class="stat-row"><span class="stat-key">EC</span><span class="stat-val" id="twin-ec">1.8</span></div>
+						<div class="stat-row"><span class="stat-key">HEALTH</span><span class="stat-val good" id="twin-health">95%</span></div>
+					</div>
+				</div>
+				<div class="twin-label">Digital Twin</div>
+			</div>
+
+
+			<!-- Watering Schedule Graph -->
+			<div class="card compact-card">
+				<span class="metric-label">WATERING SCHEDULE</span>
+				<canvas id="watering-graph" class="graph-24h small"></canvas>
+				<div class="schedule-dots">
+					<span class="dot active"></span>
+					<span class="dot"></span>
+					<span class="dot"></span>
+					<span class="dot"></span>
+					<span class="dot"></span>
+					<span class="dot"></span>
+					<span class="dot"></span>
+					<span class="schedule-label">0 / SCHEDULED</span>
+				</div>
+			</div>
+
+			<!-- System Log -->
+			<div class="card log-card">
+				<span class="metric-label">SYSTEM LOG</span>
+				<div class="system-log" id="system-log">
+					<div class="log-entry">SYSTEM STARTUP Complete...</div>
+					<div class="log-entry">Connected to greenhouse SIM</div>
+					<div class="log-entry highlight">Temperature stable at 22.5°C</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- RIGHT COLUMN: Pump Speed Controls -->
+		<section class="column right-column">
+			<h2 class="column-title">PUMP CONTROLS & SETTINGS</h2>
+
+			<!-- TOP RIGHT: Empty Card (Mirrors Lux Level) -->
+			<div class="card edge-node-card" id="edge-node-card">
+				<div class="card-header-row">
+					<span class="card-title">EDGE DISTRIBUTED CONTROL</span>
+					<div class="status-indicator offline" id="mqtt-status-dot"></div>
+				</div>
+				<div class="edge-info" style="flex: 1; padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px;">
+					<div class="info-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+						<span style="color: var(--text-dim);">EDGE ID:</span>
+						<span style="color: var(--accent);" id="edge-node-id">GH-01</span>
+					</div>
+					<div class="info-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+						<span style="color: var(--text-dim);">MASTER:</span>
+						<span id="mqtt-master-name">GH-MASTER-01</span>
+					</div>
+					<div class="info-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+						<span style="color: var(--text-dim);">STATUS:</span>
+						<span class="status-text warning" id="mqtt-status-text">OFFLINE</span>
+					</div>
+					<div class="info-row" style="display: flex; justify-content: space-between;">
+						<span style="color: var(--text-dim);">HEARTBEAT:</span>
+						<span style="color: #FDB813;">5.0s</span>
+					</div>
+				</div>
+			</div>
+
+			<!-- MIDDLE RIGHT: NUTRIENT PUMPS (A & B Side by Side) - Opens Full Screen Modal -->
+			<div class="card nutrient-pumps-card expandable-card" id="nutrient-pumps-card" data-modal="nutrient-settings">
+				<div class="card-header-row">
+					<span class="card-title">NUTRIENT PUMPS</span>
+					<span class="expand-hint">Hold to expand</span>
+				</div>
+
+				<!-- Pumps Side by Side - Original Full Size -->
+				<div class="pumps-row">
+					<!-- Pump A -->
+					<div class="pump-column">
+						<div class="pump-control-layout">
+							<div class="pump-info-left">
+								<span class="pump-label">PUMP A</span>
+								<span class="pump-value" id="nutri-a-pct">89%</span>
+								<label class="toggle-switch vertical">
+									<input type="checkbox" id="nutri-a-toggle" checked>
+									<span class="toggle-slider green"></span>
+								</label>
+							</div>
+							<div class="bar-with-scale">
+								<div class="vertical-slider" id="slider-nutri-a" data-value="89">
+									<div class="slider-track"></div>
+									<div class="slider-fill green" id="nutri-a-fill" style="height: 89%"></div>
+									<div class="slider-thumb" id="nutri-a-thumb" style="bottom: 89%">
+										<span class="thumb-value">89</span>
+										<span class="thumb-grip"></span>
+									</div>
+								</div>
+								<div class="bar-scale-right">
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">100</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">75</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">50</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">25</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">0</span></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Pump B -->
+					<div class="pump-column">
+						<div class="pump-control-layout">
+							<div class="pump-info-left">
+								<span class="pump-label">PUMP B</span>
+								<span class="pump-value" id="nutri-b-pct">59%</span>
+								<label class="toggle-switch vertical">
+									<input type="checkbox" id="nutri-b-toggle" checked>
+									<span class="toggle-slider green"></span>
+								</label>
+							</div>
+							<div class="bar-with-scale">
+								<div class="vertical-slider" id="slider-nutri-b" data-value="59">
+									<div class="slider-track"></div>
+									<div class="slider-fill green" id="nutri-b-fill" style="height: 59%"></div>
+									<div class="slider-thumb" id="nutri-b-thumb" style="bottom: 59%">
+										<span class="thumb-value">59</span>
+										<span class="thumb-grip"></span>
+									</div>
+								</div>
+								<div class="bar-scale-right">
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">100</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">75</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">50</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">25</span></div>
+									<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">0</span></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- pH ADJUSTMENT + WATER PUMP Combined -->
+			<div class="card ph-pump-card expandable-card" id="ph-pump-card" data-modal="ph-settings">
+				<div class="card-header-row">
+					<span class="card-title">pH & WATER CONTROL</span>
+					<span class="expand-hint">Hold to expand</span>
+				</div>
+
+				<div class="dual-pump-row">
+					<!-- Water Pump Section -->
+					<div class="water-pump-section">
+						<span class="pump-label">WATER</span>
+						<button class="pump-btn" id="water-pump-toggle">
+							<svg viewBox="0 0 60 60" class="pump-icon">
+								<circle cx="30" cy="30" r="25" fill="none" stroke="currentColor" stroke-width="2"/>
+								<circle cx="30" cy="30" r="18" fill="none" stroke="currentColor" stroke-width="1"/>
+								<circle cx="30" cy="30" r="8" fill="currentColor"/>
+							</svg>
+						</button>
+						<span class="pump-status" id="water-pump-status">OFF</span>
+					</div>
+
+					<!-- pH DOWN Section -->
+					<div class="pump-control-layout">
+						<div class="pump-info-left">
+							<span class="pump-label">pH DOWN</span>
+							<span class="pump-value warning" id="ph-down-pct">75%</span>
+							<label class="toggle-switch vertical">
+								<input type="checkbox" id="ph-down-toggle" checked>
+								<span class="toggle-slider red"></span>
+							</label>
+						</div>
+						<div class="bar-with-scale">
+							<div class="vertical-slider" id="slider-ph-down" data-value="75">
+								<div class="slider-track"></div>
+								<div class="slider-fill red" id="ph-down-fill" style="height: 75%"></div>
+								<div class="slider-thumb red" id="ph-down-thumb" style="bottom: 75%">
+									<span class="thumb-value">75</span>
+									<span class="thumb-grip"></span>
+								</div>
+							</div>
+							<div class="bar-scale-right">
+								<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">100</span></div>
+								<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">75</span></div>
+								<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">50</span></div>
+								<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">25</span></div>
+								<div class="scale-tick"><span class="tick-line"></span><span class="tick-num">0</span></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- FULL SCREEN MODAL (Hidden by default) -->
+	<div class="fullscreen-modal" id="fullscreen-modal">
+		<div class="modal-backdrop"></div>
+		<div class="modal-content">
+			<div class="modal-header">
+				<span class="modal-title" id="modal-title">SETTINGS</span>
+				<button class="modal-close-btn" id="modal-close">✕</button>
+			</div>
+			<div class="modal-body" id="modal-body">
+				<!-- Content populated by JS based on which card was held -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Sidebar Navigation -->
+	<nav class="sidebar">
+		<a href="#" class="nav-item active">
+			<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+				<rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+			</svg>
+			<span class="label">Dashboard</span>
+		</a>
+		<a href="#" class="nav-item">
+			<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+				<polyline points="9 22 9 12 15 12 15 22"/>
+			</svg>
+			<span class="label">Greenhouse</span>
+		</a>
+		<a href="#" class="nav-item">
+			<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+			</svg>
+			<span class="label">Schedule</span>
+		</a>
+		<a href="#" class="nav-item">
+			<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+				<line x1="6" y1="20" x2="6" y2="14"/>
+			</svg>
+			<span class="label">Analytics</span>
+		</a>
+		<a href="#" class="nav-item">
+			<svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+			</svg>
+			<span class="label">Settings</span>
+		</a>
+		<a href="#" class="nav-item">
+			<span class="label">Help</span>
+		</a>
+
+		<!-- Sidebar Clock -->
+		<div class="nav-item clock-container">
+			<span class="clock" id="clock">10:35 AM</span>
+		</div>
+	</nav>
+
+	<script src="hmi-dashboard.js"></script>
+</body>
+</html>
